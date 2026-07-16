@@ -1,0 +1,38 @@
+---
+title: "Sex Ed Classification"
+subtitle: "Insert Subtitle"
+author: 
+  - Rosemarie Topp
+thanks: "Code and data are available at: "
+date: today
+date-format: long
+abstract: "Insert abstract"
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+#| loading libraries
+
+```
+
+# Introduction
+
+**Disclaimer: Due to the subject matter, this paper contains sensitive language that may be considered offensive.**
+The state of sexual education curriculum varies wildly around the world, and even across Canadian provinces. The topic of if, when, and how to introduce children to certain subjects is extremely divisive, and often raises religious, political, and moral issues. According to the [@citeWHO], comprehensive sexual education is defined as "a curriculum‑based, incremental and scientifically-accurate approach that teaches children and young people about the cognitive, emotional, physical and social aspects of sexuality in a culturally-relevant and **age-appropriate** way." That being said, what concepts can be considered age-appropriate for a given demographic is hard to define. Even if it can be universally agreed upon that a piece of content is inappropriate for children to consume, the exact reasons why may be hard to put into words. The exact criteria often comes down to what United States Supreme Court Justice Potter Stewart once said when asked to define obscene pornography: "I know it when I see it" [@citeLattman].
+
+In the age of social media, millions upon millions of posts go up each day, many of which contain sensitive themes. Websites such as Youtube or TikTok are frequented by curious children seeking educational information [@citeDoring]. Back in the early 2000s, before censorship laws were put in place, the internet was more of a wild west. Users could post all manner of sensitive content, and as the internet became more accessible to younger audiences, it was not uncommon for those of a formative age to be exposed to shocking images and videos that were far from age-appropriate. Over the years, various countries have put legislation in place to help shelter younger users from sensitive content, such as Canada's very recent Bill C-34, which mandates the implementation of safeguards on social media sites and AI chatbots in order to protect children from harmful material [@citeC34]. The detection of inappropriate content on websites frequented by minors has thus become a legal necessity, and research in this area is of great interest to social media companies. Seeing as it is virtually impossible for humans to manually check content at this volume, Justice Stewart's criteria falls short in today's world.
+
+Instead, companies perform this detection using a mix of algorithms and user reports. In 2021, Meta announced they would begin using artificial intelligence models trained with few-shot prompting to detect harmful content on their platforms [@citeMeta]. Few-shot learning is when a model is provided with some small number of completed examples before being given a task [@citeBrown]. This is one common method used to help improve the accuracy of LLM text classification. Great strides have been made in recent years to improve the ability of models to classify the semantic meaning of text passages. Text classification is an important area of natural language processing, a subfield of computer science that focuses on getting computers to understand human language. Traditional methods for representing text such as Bag of Words ignored semantic meaning, and would, for example, treat the word "tie" the same whether it referred to the accessory or an equal score [@citeAltinel. Newer models have overcome this limitation and are able to not only discern between homonyms, but understand tonal differences in text that can be easily picked up on by humans but are very difficult to define. This has vastly broadened the use cases for artificial intelligence.
+
+# Relevant Literature
+
+# Methods
+
+# Results
+
+# Discussion
