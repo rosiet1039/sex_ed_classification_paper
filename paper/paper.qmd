@@ -16,8 +16,8 @@ bibliography: references.bib
 #| include: false
 #| warning: false
 #| message: false
-#| loading libraries
-
+# loading libraries
+library(knitr)
 ```
 
 # Introduction
@@ -37,10 +37,30 @@ The content of this paper involves three main subjects: (1) childhood sexuality 
 ## Childhood Sexuality Education
 Legislation regarding sex education varies greatly around the world, even within countries such as Canada and the US. An extreme example of this is the United States, which is known for its great political divide. SEICUS, an organization dedicated to promoting healthy sexual education in the US, has created detailed state profiles that go in depth on each region's position on how sex ed should be delivered to students [@citeSEICUS]. As of 2025, 14 states provide abstinence-only education, which has been shown to fail in protecting students from sexually transmitted illness and pregnancy [@citeSantelli]. 19 states exclude and/or stigmatize LGBTQ+ people in their sex education. Only three states, California; Oregon and Washington, require comprehensive sexuality education in all schools. Different areas have vastly different ideas of what is age-appropriate for those under the age of 18 to learn about. Parents and guardians may have a desire to shelter their children from certain subjects for fear that learning about sexuality and gender will increase risky behaviour, however there is much evidence to the contrary [@citeWHO]. A paper on parental attitudes towards the K-12 gender and sexuality curriculum in Australia identified that many believe children are too immature and easily influenced to learn about these topics [@citeFerfolja]. Regardless of age-appropriateness, young people may be exposed to sexual concepts through the internet, peers, and real life experiences. Without a reliable foundation of knowledge from which to draw from, they may be unable to tell myth from truth.
 
-## Online Censorship
-As the internet and social media gain increasing popularity, countries have each put in place legislation to regulate what kind of content can be posted online. The Online Streaming Act (Bill C-11) of 2022 gave the Canadian Radio and Television Commission the ability to regulate Canadian digital media platforms the same way they had been regulating radio and TV broadcasters [@citeWoolf]. Media censorship is a hotly debated topic, with many feeling it infringes on human rights, particularly in the United States where the freedom of speech is deeply valued in society. Many also believe that while high profile media such as news and television should stay regulated, the internet should be like the high seas, out of the jurisdiction of any governing force [@citeHoward]. And there is much truth to this, which is part of why it is so difficult to regulate online content. But many social media platforms are getting increasingly stricter with their terms of service due to financial and legal pressure [@citeLiao]. A huge component of this is raising the minimum age requirement for users. In 2025, Australia banned social media for those under the age of 16, and several countries including Canada are heading down the same path [@citeAngusRied]. A big issue with these age restrictions is that the only real way to enforce them is by requiring users to submit some form of identification, which creates privacy issues [@citeMaimann].
+## Online Censorship and Age Restriction
+As the internet and social media gain increasing popularity, countries have each put in place legislation to regulate what kind of content can be posted online. The Online Streaming Act (Bill C-11) of 2022 gave the Canadian Radio and Television Commission the ability to regulate Canadian digital media platforms the same way they had been regulating radio and TV broadcasters [@citeWoolf]. Online censorship is a hotly debated topic, with many feeling it infringes on human rights; the internet should be like the high seas, out of the jurisdiction of any governing force [@citeHoward]. And there is much truth to this, which is part of why it is so difficult to regulate online content. But many social media platforms are getting increasingly strict with their terms of service due to financial and legal pressure [@citeLiao]. There is much demand to raise the minimum age requirement for users, however the most effective way to enforce this is by requiring legal identification, which creates privacy issues [@citeMaimann]. In 2025, Australia banned social media for those under the age of 16, and several countries, such as Canada, are heading down the same path [@citeAngusRied]. The Canadian government has stated that they intend to implement a social media ban for those under the age of 16, with an exemption for platforms that have sufficient safeguards in place [@citeC34]. These safeguards must protect children from viewing "harmful content", which is defined as media that falls into any of these categories:
+
+  - Intimate content communicated without consent
+  - Content that sexually victimizes a child or revictimizes a survivor
+  - Content that induces a child to harm themselves
+  - Content used to bully a child
+  - Content that foments hatred
+  - Content that incites violence
+  - Terrorism or violent extremism content
+
+Unfortunately many of these types of content cannot be fully accurately detected by a simple algorithm. There is no one word that is in every piece of hate speech, no single phrase that consistently promotes violence. Platforms often use user reports to aid algorithms in this detection, however this opens the door to unwarranted mass reporting performed by bots or spiteful users [@citeConteras]. Content by LGBTQ+ individuals is often disproportionately suppressed, and sexual education is detected as explicit [@citeTremblay] [@citeYork] [@citeZhang]. Additionally, many posts that arguably do fit the criteria go unremoved [@citeSeitz]. It would be impossible for a healthy sample of humans to go through every social media post and assess potential harm. It is in the best interest of companies to build more intelligent algorithms that are able to detect nuanced semantics in order to keep online spaces safe and inclusive.
 
 ## Text Classification
+Text classification is a common task in machine learning in which a model has to assign a category or label to a piece of text. This category could be the topic the text is relating to, the sentiment, the tone, or something else entirely. There are many different techniques used to complete this task.
+
+### Supervised Text Classification
+The majority of text classification performed today is supervised [@citeStryker]. In this method, sets of pre-classified text (which have been labeled by humans) are fed to the model in order to train it. The model uses these examples to get an idea of what goes in each category. It is then given new pieces of text which it must classify according to this same pattern.
+
+### Text Clustering
+Text clustering is a type of unsupervised text classification, a method where instead of training the model on labeled examples, it finds patterns within the data. Clustering essentially puts texts into groups based on semantic similarity. Texts within the same cluster are assumed to relate to the same topic. After this is performed, the clusters can be inspected to determine which topic they each refer to.
+
+### Zero-Shot Learning
+Zero-shot, one-shot, and few-shot learning are all prompting techniques used to improve the ability of a pre-trained model to perform a specified task. The model is first given some number of completed examples of said task, and then asked to perform it on new data. Few-shot refers to multiple examples, one-shot refers to one, and zero-shot asks the model to execute the task based solely on what it already knows. In the context of text classification, this would look like simply prompting the model to classify some piece of text, usually into a specified set of categories. Zero-shot is often used when there is no labeled data available with which to provide examples. While this method has less accuracy than one- and few-shot learning, it still proves to be quite successful, particularly with larger, more advanced models [@citeBrown].
 
 # Methods
 
