@@ -55,7 +55,7 @@ clean_sentences = [
 ]
 
 #write tokens into csv file
-with open("../data/sentences.csv", "w", newline="", encoding="utf-8") as file:
+with open("../data/sentences.cs1v", "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerow(["sentence"])
     for sentence in clean_sentences:

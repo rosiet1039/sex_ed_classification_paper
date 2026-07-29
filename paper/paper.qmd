@@ -67,11 +67,16 @@ Text clustering is a type of unsupervised text classification, a method where in
 Zero-shot, one-shot, and few-shot learning are all prompting techniques used to improve the ability of a pre-trained model to perform a specified task. The model is first given some number of completed examples of said task, and then asked to perform it on new data. Few-shot refers to multiple examples, one-shot refers to one, and zero-shot asks the model to execute the task based solely on what it already knows. In the context of text classification, this would look like simply prompting the model to classify some piece of text, usually into a specified set of categories. Zero-shot is often used when there is no labeled data available with which to provide examples. While this method has less accuracy than one- and few-shot learning, it still proves to be quite successful, particularly with larger, more advanced models [@citeBrown].
 
 # Data {#sec-data}
+
+## Overview
+
+The data analyzed in this paper comes from the 2014 edition of the book *It's Perfectly Normal* by Robbie Harris and Michael Emberley. All handling of data was done using the statistical programming language R [@citeR] as well as Python version 3.13 [@citePython]. R package `readr` [@citeReadr], and Python packages `pdfminer` [@citePdfminer], `nltk` [@citeNltk], `re` [@citeRe], and `csv` [@citeCsv] were used to clean, analyze, and simulate data. R package `ellmer` [@citeEllmer] was used to access the models used in this analysis. All plots were created using `ggplot2` [@citeGgplot2]. `knitr` was used to help format this document [@citeKnitr].
+
 ## *It's Perfectly Normal*
 The data used in this analysis is a random sample of sentences collected from the most recent edition of the book *It's Perfectly Normal* by Robbie Harris and Michael Emberley, published in 2014 [@citeHarris]. The first edition of this book was originally published in 1994 and has since been updated three times [@citeFlynn]. *It's Perfectly Normal* is a sexual education book intended for children ages 10 and up, and has been praised for its clear language, comprehensive information, and discussion of the LGBTQ+ community [@citePerring]. Despite this, the picture book has also gained widespread controversy for its detailed illustrations and themes which some consider to be inappropriate for the target audience [@citeHersher]. It has frequently topped the American Library Association's list of most challenged books since its original release over two decades ago [@citeALA].
 
 ## Cleaning
-TBD
+In order to use the text from *It's Perfectly Normal*, the book was parsed into individual sentences in Python [@citeHarris] [@citePython]. The package `pdfminer` was used to extract text from the pdf of the book [@citePdfminer]. The package `nltk` was then used to turn individual sentences into tokens which were then written into a csv file [@citeNltk]. Text in the margins such as chapter titles and page numbers were ignored. This processed resulted in some "sentences" that contained no alphabetical letters, and these were removed. While much effort was taken to find a package that could preserve the book's intended text format, there are a small number of nonsensical row entries containing unfinished sentences or parts of multiple sentences mashed together.
 
 # Methods {#sec-methods}
 
