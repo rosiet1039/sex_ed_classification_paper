@@ -49,9 +49,14 @@ text = re.sub(r"\s+", " ", text).strip()
 #tokenize sentences
 sentences = nltk.sent_tokenize(text)
 
+clean_sentences = [
+    s for s in sentences
+    if re.search(r"[A-Za-z]", s)
+]
+
 #write tokens into csv file
 with open("../data/sentences.csv", "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerow(["sentence"])
-    for sentence in sentences:
+    for sentence in clean_sentences:
         writer.writerow([sentence])
