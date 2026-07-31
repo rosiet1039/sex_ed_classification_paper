@@ -7,27 +7,17 @@
 
 # load libraries
 library(readr)
-
+library(tidyverse)
 library(ellmer)
 
 # load data
 
 sentences <- read_csv("data/sentences.csv")
 
-# keys
+# pick sample of 200 sentences
+set.seed(1039)
 
-  # openai
-  Sys.setenv(OPENAI_API_KEY = "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")
-
-  # google gemini
-
-  # deepseek
-
-  # anthropic
-
-# pick sample of 50 sentences
-
-samp <- sentences[sample(1:nrow(sentences), 10),]
+samp <- sentences[sample(1:nrow(sentences), 200),]
 
 # create df
 
@@ -37,25 +27,56 @@ llm_data <- data.frame(
 
 # data generation and collection
 n = nrow(samp)
-responses <- vector("character", n)
   
   # call gpt-4o-mini and record responses
+  responses_gpt_4o_mini <- vector("character", n)
   for (i in 1:n) {
     prompt <- paste0("Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no ",  "'", samp$sentence[i], "'")
     chat <- chat_openai(model = "gpt-4o-mini")
-    responses[i] <- chat$chat(prompt)
+    responses_gpt_4o_mini[i] <- chat$chat(prompt)
   }
   
-  llm_data$gpt_4o_mini <- responses
+  llm_data$gpt_4o_mini <- responses_gpt_4o_mini
   
   # call gpt-5.4-mini and record responses
+  responses_gpt_5.4_mini <- vector("character", n)
   for (i in 1:n) {
     prompt <- paste0("Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no ",  "'", samp$sentence[i], "'")
     chat <- chat_openai(model = "gpt-5.4-mini")
-    responses[i] <- chat$chat(prompt)
+    responses_gpt_5.4_mini[i] <- chat$chat(prompt)
   }
   
-  llm_data$gpt_5.4_mini <- responses
+  llm_data$gpt_5.4_mini <- responses_gpt_5.4_mini
+  
+  # call gpt-5.4-mini and record responses
+  responses_gpt_4 <- vector("character", n)
+  for (i in 1:n) {
+    prompt <- paste0("Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no ",  "'", samp$sentence[i], "'")
+    chat <- chat_openai(model = "gpt-4")
+    responses_gpt_4[i] <- chat$chat(prompt)
+  }
+  
+  llm_data$gpt_4 <- responses_gpt_4
+  
+  # call claude-sonnet-4-6 and record responses
+  #for (i in 1:n) {
+  #  prompt <- paste0("Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no ",  "'", samp$sentence[i], "'")
+  #  chat <- chat_anthropic(model = "claude-sonnet-4-6")
+  #  responses[i] <- chat$chat(prompt)
+  #}
+  
+  #llm_data$claude_sonnet_4_6 <- responses
+  
+  # call claude-haiku-4-5 and record responses
+  #for (i in 1:n) {
+  #  prompt <- paste0("Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no ",  "'", samp$sentence[i], "'")
+  #  chat <- chat_anthropic(model = "claude-haiku-4-5-20251001")
+  #  responses[i] <- chat$chat(prompt)
+  #}
+  
+  #llm_data$claude_haiku_4_5 <- responses
   
   #write responses into csv
   write_csv(llm_data, "data/response_data.csv")
+
+  

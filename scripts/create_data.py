@@ -50,12 +50,15 @@ text = re.sub(r"\s+", " ", text).strip()
 sentences = nltk.sent_tokenize(text)
 
 clean_sentences = [
-    s for s in sentences
-    if re.search(r"[A-Za-z]", s)
+    s.strip()
+    for s in sentences
+    if s.strip()
+    and re.search(r"[A-Za-z]", s)
+    and s.strip()[0].isupper()
 ]
 
 #write tokens into csv file
-with open("../data/sentences.cs1v", "w", newline="", encoding="utf-8") as file:
+with open("../data/sentences.csv", "w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerow(["sentence"])
     for sentence in clean_sentences:
