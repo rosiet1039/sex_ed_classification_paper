@@ -18,6 +18,12 @@ bibliography: references.bib
 #| message: false
 # loading libraries
 library(knitr)
+library(readr)
+library(kableExtra)
+
+# loading data
+data <- read_csv("../data/response_clean.csv")
+raw <- read_csv("../data/response_data.csv")
 ```
 
 # Introduction
@@ -26,7 +32,7 @@ library(knitr)
 
 The state of sexuality education in schools varies around the world. The topic of if, when, and how to introduce children to certain subjects is divisive, and often raises religious, political, and moral issues. According to the @citeWHO, comprehensive sexuality education is defined as "a curriculum‑based, incremental and scientifically-accurate approach that teaches children and young people about the cognitive, emotional, physical and social aspects of sexuality in a culturally-relevant and **age-appropriate** way." That being said, what is considered age-appropriate for a given demographic is hard to define. Even if it could be universally agreed upon that a piece of content was inappropriate for children to consume, the exact reasons why may be hard to put into words. The exact criteria often comes down to what United States Supreme Court Justice Potter Stewart once said when asked to define obscene pornography: "I know it when I see it" [@citeLattman].
 
-According to a 2024 report, 66,000 Instagram posts, 347,200 Tweets, and 1.7 million Facebook posts were shared every minute of the year [@citeDomo]. Many of these pieces of content may contain sensitive themes. Websites such as Youtube or TikTok are frequented by  children seeking educational information [@citeDoring]. In the early 2000s, before censorship laws were put in place, the internet was essentially unregulated, allowing anyone with internet access to consume and post offensive, violent, and pornographic material. Over the years, various countries have put legislation in place to help hide sensitive content from younger users, such as Canada's recent Bill C-34, which mandates the implementation of safeguards on social media sites and AI chatbots in order to protect children from harmful material [@citeC34]. The detection of inappropriate content on websites frequented by minors has thus become a legal necessity, making research in the area of data classification of great interest to social media companies. Seeing as it is virtually impossible for humans to manually check content at this volume, Justice Stewart's criteria falls short in today's world.
+According to a 2024 report, 66,000 Instagram posts, 347,200 Tweets, and 1.7 million Facebook posts were shared every minute of the year [@citeDomo]. Many of these pieces of content may contain sensitive themes. Websites such as Youtube or TikTok are frequented by children seeking educational information [@citeDoring]. In the early 2000s, before censorship laws were put in place, the internet was essentially unregulated, allowing anyone with internet access to consume and post offensive, violent, and pornographic material. Over the years, various countries have put legislation in place to help hide sensitive content from younger users, such as Canada's recent Bill C-34, which mandates the implementation of safeguards on social media sites and AI chatbots in order to protect children from harmful material [@citeC34]. The detection of inappropriate content on websites frequented by minors has thus become a legal necessity, making research in the area of data classification of great interest to social media companies. Seeing as it is virtually impossible for humans to manually check content at this volume, Justice Stewart's criteria falls short in today's world.
 
 Instead, companies perform this detection using a mix of algorithms and user reports. In 2021, Meta announced they would begin using artificial intelligence models trained with few-shot learning to detect harmful content on their platforms [@citeMeta]. Few-shot learning is a technique in which a model is provided with some small number of demonstrative examples before a task is given [@citeBrown]. This is a common method used to help improve the accuracy of LLM text classification. Text classification is an important area of natural language processing, a subfield of computer science that focuses on getting computers to work with human language. Traditional methods for representing text ignored semantic meaning, and would, for example, treat the word "tie" the same whether it referred to the accessory or an equal score [@citeAltinel]. Newer models have overcome this limitation and are able to not only discern between homonyms, but understand tonal differences in text that can be easily picked up on by humans but are very difficult to define. This has vastly broadened the use cases for artificial intelligence.
 
@@ -34,30 +40,34 @@ With the recent advances in semantic text classification technology, much resear
 
 Insert paragraph about methods and results
 
-This rest of this report will be separated into the following sections: @sec-background will provide background information on the key areas most relevant to this paper. @sec-data will showcase the data used in the analysis. @sec-methods will describe the methods used [say something else about the methods]. @sec-results will detail the results and findings of the analysis. @sec-discussion will discuss the big picture relevance of the results.
+This rest of this report will be separated into the following sections: @sec-background will provide background information on the key areas most relevant to this paper. @sec-data will showcase the data used in the analysis. @sec-methods will describe the methods used \[say something else about the methods\]. @sec-results will detail the results and findings of the analysis. @sec-discussion will discuss the big picture relevance of the results.
 
 # Background {#sec-background}
+
 The content of this paper involves three main subjects: (1) childhood sexuality education, (2) online censorship, and (3) semantic text classification. Much research has been done in all three areas that have greatly informed and inspired this report.
 
 ## Childhood Sexuality Education
+
 Legislation regarding sex education varies greatly around the world, even within countries such as Canada and the United States. An extreme example of this is the United States, which is known for its great political divide. SEICUS, an organization dedicated to promoting healthy sexual education in the US, has created detailed state profiles that go in depth on each region's position on how sex ed should be delivered to students [@citeSEICUS]. As of 2025, 14 states provide abstinence-only education, which has been shown to fail in protecting students from sexually transmitted illness and pregnancy [@citeSantelli]. 19 states exclude and/or stigmatize LGBTQ+ people in their sex education. Only three states, California; Oregon and Washington, require comprehensive sexuality education in all schools.
 
-Different areas have vastly different ideas of what is age-appropriate for those under the age of 18 to learn about. Parents and guardians may have a desire to shelter their children from certain subjects for fear that learning about sexuality and gender will increase risky behaviour, however there is much evidence to the contrary [@citeWHO]. A paper on parental attitudes towards the K-12 gender and sexuality curriculum in Australia identified that many believe children are too immature and easily influenced to learn about these topics [@citeFerfolja]. Regardless of age-appropriateness, young people may be exposed to sexual concepts through the internet, peers, and real life experiences. Without a reliable foundation of knowledge from which to draw from, they may be unable to tell myth from truth.
+Different areas have vastly different ideas of what is age-appropriate for those under the age of 18 to learn about. Parents and guardians may have a desire to protect their children from certain subjects for fear that learning about sexuality and gender will increase risky behaviour, however there is much evidence to the contrary [@citeWHO]. A paper on parental attitudes towards the K-12 gender and sexuality curriculum in Australia identified that many believe children are too immature and easily influenced to learn about these topics [@citeFerfolja]. Regardless of age-appropriateness, young people may be exposed to sexual concepts through the internet, peers, and real life experiences. Without a reliable foundation of knowledge from which to draw from, they may be unable to tell myth from truth.
 
 ## Online Censorship and Age Restriction
+
 As the internet and social media gain increasing popularity, countries have each put in place legislation to regulate what kind of content can be posted online. The Online Streaming Act (Bill C-11) of 2022 gave the Canadian Radio and Television Commission the ability to regulate Canadian digital media platforms the same way they had been regulating radio and TV broadcasters [@citeWoolf]. This bill received pushback from those who hold the opinion that online censorship infringes on human rights [@citeLewis]. Regardless, many social media platforms are getting increasingly strict with their terms of service due to financial and legal pressure, such as content platform OnlyFans banning sexually explicit content at the request of credit card companies [@citeCNN] [@citeLiao]. The Canadian government has stated that they intend to implement a social media ban for those under the age of 16, with an exemption for platforms that have sufficient safeguards in place [@citeC34]. These safeguards must protect children from viewing "harmful content", which is defined as media that falls into any of these categories:
 
-  - Intimate content communicated without consent
-  - Content that sexually victimizes a child or revictimizes a survivor
-  - Content that induces a child to harm themselves
-  - Content used to bully a child
-  - Content that foments hatred
-  - Content that incites violence
-  - Terrorism or violent extremism content
+-   Intimate content communicated without consent
+-   Content that sexually victimizes a child or revictimizes a survivor
+-   Content that induces a child to harm themselves
+-   Content used to bully a child
+-   Content that foments hatred
+-   Content that incites violence
+-   Terrorism or violent extremism content
 
 Unfortunately many of these types of content cannot be fully accurately detected by a simple algorithm. There is no one word that is in every piece of hate speech, no single phrase that consistently promotes violence. Platforms often use user reports to aid algorithms in this detection, however this opens the door to unwarranted mass reporting performed by bots or spiteful users [@citeContreras]. Content by LGBTQ+ individuals is often disproportionately suppressed, and sexual education is usually detected as explicit [@citeTremblay] [@citeYork] [@citeZhang]. Additionally, many posts that arguably do fit the criteria go unremoved [@citeSeitz]. It would be impossible for a healthy sample of humans to go through every social media post and assess potential harm. It is in the best interest of companies to build more intelligent algorithms that are able to detect nuanced semantics in order to keep online spaces safe and inclusive.
 
 ## Text Classification
+
 Text classification is a common task in machine learning in which a model has to assign a category or label to a piece of text. This category could be the topic the text is relating to, the sentiment, the tone, or something else entirely. There are many different techniques used to complete this task.
 
 The majority of text classification performed today is supervised [@citeStryker]. In this method, sets of pre-classified text (which have been labeled by humans) are fed to the model in order to train it. The model uses these examples to get an idea of what goes in each category. It is then given new pieces of text which it must classify according to this same pattern.
@@ -73,19 +83,155 @@ Zero-shot, one-shot, and few-shot learning are all prompting techniques used to 
 The data analyzed in this paper comes from the 2014 edition of the book *It's Perfectly Normal* by Robbie Harris and Michael Emberley. All handling of data was done using the statistical programming language R [@citeR] as well as Python version 3.13 [@citePython]. R package `readr` [@citeReadr], and Python packages `pdfminer` [@citePdfminer], `nltk` [@citeNltk], `re` [@citeRe], and `csv` [@citeCsv] were used to clean, analyze, and simulate data. R package `ellmer` [@citeEllmer] was used to access the models used in this analysis. All plots were created using `ggplot2` [@citeGgplot2]. `knitr` was used to help format this document [@citeKnitr].
 
 ## *It's Perfectly Normal*
+
 The data used in this analysis is a random sample of sentences collected from the most recent edition of the book *It's Perfectly Normal* by Robbie Harris and Michael Emberley, published in 2014 [@citeHarris]. The first edition of this book was originally published in 1994 and has since been updated three times [@citeFlynn]. *It's Perfectly Normal* is a sexual education book intended for children ages 10 and up, and has been praised for its clear language, comprehensive information, and discussion of the LGBTQ+ community [@citePerring]. Despite this, the picture book has also gained widespread controversy for its detailed illustrations and themes which some consider to be inappropriate for the target audience [@citeHersher]. It has frequently topped the American Library Association's list of most challenged books since its original release over two decades ago [@citeALA].
 
 ## Cleaning
-In order to use the text from *It's Perfectly Normal*, the book was parsed into individual sentences in Python [@citeHarris] [@citePython]. The package `pymupdf` was used to extract text from the pdf of the book [@citePymupdf]. The package `nltk` was then used to turn individual sentences into tokens which were then written into a csv file [@citeNltk]. This processed resulted in some "sentences" that contained no alphabetical letters, and these were removed. While much effort was taken to preserve the book's intended text format, there are a small number of row entries containing fragments of different sentences concatenated together.
+
+In order to use the text from *It's Perfectly Normal*, the book was parsed into individual sentences in Python [@citeHarris] [@citePython]. The package `pymupdf` was used to extract text from the pdf of the book [@citePymupdf]. Only text with font size 10.5, the font size of the main text, was included. The package `nltk` was then used to turn individual sentences into tokens which were then written into a csv file [@citeNltk]. This processed resulted in some "sentences" that contained no alphabetical letters, and these were removed. While much effort was taken to preserve the book's intended text format, there are a small number of row entries containing fragments of different sentences concatenated together.
 
 # Methods {#sec-methods}
-Several models were used to examine how generative LLMs classify text-based sexual education material. Default parameters were maintained on all models except for temperature. The temperature of a model indicates the variability of its responses, with 0 being the least variable and 1 the most. This parameter was set to 0.4 in order to examine how model response varies. The models used were Open AI's GPT 4o mini, GPT 5.4 mini, and GPT 4, Deepseek's V4 Flash, [add more models].
 
-In order to prompt the models, zero-shot learning was employed. Zero-shot refers to a prompting style where no demonstrative examples are provided, and the model must base its answer on previous knowledge. 200 unique sentence excerpts from *It's Perfectly Normal* were provided to each model, in the following format: 'Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no [sentence in quotations]'. Models then provide a yes or no response. Each text excerpt was provided to each model 50 times, and responses were recorded.
+Several models were used to examine how generative LLMs classify text-based sexual education material. Default parameters were maintained on all models except for temperature. The temperature of a model indicates the variability of its responses, with 0 being the least variable and 1 the most. This parameter was set to 0.4 in order to examine how model response varies. The models used were Open AI's GPT 4o mini, GPT 5.4 mini, and GPT 4, Deepseek's V4 Flash, \[add more models\].
 
-
+In order to prompt the models, zero-shot learning was employed. Zero-shot refers to a prompting style where no demonstrative examples are provided, and the model must base its answer on previous knowledge. 100 unique sentence excerpts from *It's Perfectly Normal* were provided to each model, in the following format: 'Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no \[sentence in quotations\]'. Models then provide a yes or no response. Each text excerpt was provided to each model 30 times, and responses were recorded.
 
 # Results {#sec-results}
+
+## Semantic Embedding and Clustering
+
+In order to understand what kind of language tended to be classified as inappropriate, semantic text embeddings were created for each sentence. This refers to the process of translating text into a long list of numbers called a vector, which points to an area in multi-dimensional space. This translation takes into account semantic meaning, rather than just the words themselves, so sentences that mean similar things will be located closer together. This was done using function 'textEmbed' from the 'text' package in R, with model bert-case-uncased, which can be found for free on HuggingFace [@citeText] [@citeBERT].
+
+In this case, distance was measured using cosine similarity, which calculates the angle between two given vectors.
+
+The sentences were then divided into clusters using the @citeHartigan K-means algorithm. This algorithm attempts to find the optimal way to divide data into some pre specified k groups called clusters. This grouping is done based on the Euclidean distance (straight length) between points. In this case, clustering helps to identify the more specific themes at play within the sample of sentences. K=3 was chosen for the number of clusters. Through manual inspection, the following themes were identified:
+
+1: Myths, Life Advice, and Internet Safety
+2: Healthcare, STIs, Arousal, Puberty, and External Anatomy
+3: Internal Biology and Anatomy
+
+[Question for Rohan: Is there a more objective way to chose the number of clusters? I picked 3 because it produced the clearest themes/patterns in each cluster. Also- is there a more reliable way to identify said themes? I simply identified them by reading the sentences in each cluster. Would it be more "objective" if I fed some sample of sentences in each cluster to a pretrained model and asked it to identify themes?]
+
+The embeddings were then compressed into two dimensions using Uniform Manifold Approximation and Projection (UMAP), a dimension reduction technique, with cosine similarity (angular distance between vectors) as the chosen distance metric. This was done in order to visualize the embeddings in the scatterplots below:
+
+## Performance Metrics
+
+Due to a lack of reliable labelled data, model responses could not be compared to a ground truth. Model performances were thus measured using alternative precision and recall metrics found in @citeFedorchuk, which compare individual classifications to overall model consensus. Consider the probability $P(\delta_i)$ of sentence $\delta_i$ to be classified as inappropriate (model response "No"). Then:
+
+$$P(\delta_i) = \sum_{k=1}^{s} \frac{S_k(\delta_i)}{s}$$
+
+Where $$S_k(\delta_i) = \begin{cases}
+0 & \text{if } Yes \\
+1 & \text{if } No
+\end{cases}$$ is the classification result from model $S_k$ of sentence $\delta_i$, and $s$ is the total number of models
+
+Assuming sentences are evenly distributed, valid probabilistic measures of precision $Pr(S_k)$ and recall $Rc(S_k)$ are as follows:
+
+$$Pr(S_k) = \sum_{i=1}^{d} \frac{S_k(\delta_i)P(\delta_i)}{S_k(\delta_i)} \space \space \space Rc(S_k) = \sum_{i=1}^{d} \frac{S_k(\delta_i)P(\delta_i)}{P(\delta_i)}$$
+
+Then the F measure is the harmonic mean of these two metrics: $$F(S_k) = \frac{2Pr(S_k)Rc(S_k)}{Pr(S_k) + Rc(S_k)}$$ These statistics were calculated for each model 30 times across the 30 trials. The (arithmetic) mean and standard deviation of each metric is shown below.
+
+```{r}
+#| echo: false
+#| output: true
+#| warning: false
+#| message: false
+
+# turn response data into ones and zeros
+n = nrow(raw)
+m = ncol(raw)
+cols <- colnames(raw[3:7])
+trial_data <- data.frame(text = raw$text)
+
+for (col in cols){
+  trials <- list()
+  for (i in (1:n)) {
+    trial <- vector("numeric")
+    result <- unlist(strsplit(raw[[col]][[i]], split = ","))
+    for (j in 2:31) {
+      if (result[j] %in% c("Yes", "Yes.", "yes")) trial[j - 1] <- 0
+      if (result[j] %in% c("No", "No.", "no")) trial[j - 1] <- 1
+    }
+    trials[[i]] <- trial
+  }
+  trial_data[[col]] <- trials
+}
+
+# metrics
+prob <- function(data_item, trial_num) {
+  total <- 0
+  for (mod in 2:ncol(trial_data)){
+    total = total + trial_data[mod][[1]][[data_item]][trial_num]
+  }
+  return (total/(ncol(trial_data)-1))
+}
+
+recall <- function(mod, trial_num) {
+  probxclass <- 0
+  probtotal <- 0
+  for (data_item in 1:nrow(trial_data)) {
+    probxclass = probxclass + prob(data_item, trial_num)*trial_data[mod][[1]][[data_item]][trial_num]
+    probtotal = probtotal + prob(data_item, trial_num)
+  }
+  return(probxclass/probtotal)
+}
+
+precision <- function(mod, trial_num) {
+  probxclass <- 0
+  classtotal <- 0
+  for (data_item in 1:nrow(trial_data)) {
+    probxclass = probxclass + prob(data_item, trial_num)*trial_data[mod][[1]][[data_item]][trial_num]
+    classtotal = classtotal + trial_data[mod][[1]][[data_item]][trial_num]
+  }
+  return(probxclass/classtotal)
+}
+
+f <- function(precision, recall) {
+  return(2*precision*recall/(precision+recall))
+}
+
+# calculating metrics
+trials <- c(1:30)
+precisions <- data.frame(trials = trials)
+recalls <- data.frame(trials = trials)
+fmeasures <- data.frame(trials = trials)
+cols <- colnames(trial_data[1:ncol(trial_data)])
+
+for (mod in 2:ncol(trial_data)) {
+  pres <- vector("numeric", length = 30)
+  recs <- vector("numeric", length = 30)
+  fs <- vector("numeric", length = 30)
+  for (i in 1:30) {
+    pre <- precision(mod, i)
+    rec <- recall(mod, i)
+    pres[i] <- pre
+    recs[i] <- rec
+    fs[i] <- f(pre, rec)
+  }
+  precisions[[cols[mod]]] <- pres
+  recalls[[cols[mod]]] <- recs
+  fmeasures[[cols[mod]]] <- fs
+}
+
+# table data and formatting
+table_data <- data.frame(Model = c(rep("GPT 4o Mini", 3), rep("GPT 5.4 Mini", 3), rep("Deepseek V4 Flash", 3), rep("Deepseek V4 Pro", 3), rep("Claude Haiku 4.5", 3)),
+           Metric = c(rep(c("Recall", "Precision", "F Measure"), 5)),
+           "Mean (%)" = c(mean(recalls$gpt_4o_mini), mean(precisions$gpt_4o_mini), mean(fmeasures$gpt_4o_mini), mean(recalls$gpt_5.4_mini), mean(precisions$gpt_5.4_mini), mean(fmeasures$gpt_5.4_mini), mean(recalls$deepseek_v4_flash), mean(precisions$deepseek_v4_flash), mean(fmeasures$deepseek_v4_flash), mean(recalls$deepseek_v4_pro), mean(precisions$deepseek_v4_pro), mean(fmeasures$deepseek_v4_pro), mean(recalls$claude_haiku_4_5), mean(precisions$claude_haiku_4_5), mean(fmeasures$claude_haiku_4_5)),
+           'Standard Deviation (%)' = c(sd(recalls$gpt_4o_mini), sd(precisions$gpt_4o_mini), sd(fmeasures$gpt_4o_mini), sd(recalls$gpt_5.4_mini), sd(precisions$gpt_5.4_mini), sd(fmeasures$gpt_5.4_mini), sd(recalls$deepseek_v4_flash), sd(precisions$deepseek_v4_flash), sd(fmeasures$deepseek_v4_flash), sd(recalls$deepseek_v4_pro), sd(precisions$deepseek_v4_pro), sd(fmeasures$deepseek_v4_pro), sd(recalls$claude_haiku_4_5), sd(precisions$claude_haiku_4_5), sd(fmeasures$claude_haiku_4_5)))
+
+colnames(table_data) <- c(
+  "Model",
+  "Metric",
+  "Mean (%)",
+  "Standard Deviation (%)"
+)
+
+table_data$'Mean (%)' <- round(table_data$'Mean (%)'*100, 1)
+table_data$'Standard Deviation (%)' <- round(table_data$'Standard Deviation (%)'*100, 1)
+
+kable(table_data) |> collapse_rows(valign = 'top') |> kable_classic(full_width = F, html_font = "Cambria")
+
+```
 
 # Discussion {#sec-discussion}
 
