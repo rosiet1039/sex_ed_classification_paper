@@ -98,7 +98,7 @@ The data used in this analysis is a random sample of sentences collected from th
 
 ## Cleaning
 
-In order to use *It's Perfectly Normal*, all text was extracted from a pdf of the book and parsed into sentences, which were then written into a csv file. Only main body text was included. While much effort was taken to preserve the book's intended text format, there were a small number of incomplete sentences in the sample. These were manually completed by referencing 
+In order to use *It's Perfectly Normal*, all text was extracted from a pdf of the book and parsed into sentences, which were then written into a csv file. Only main body text was included. While much effort was taken to preserve the book's intended text format, there were a small number of incomplete sentences in the sample. These were manually completed by referencing
 
 # Methods {#sec-methods}
 
@@ -124,7 +124,7 @@ The embeddings were then compressed into two dimensions using Uniform Manifold A
 #| echo: false
 #| output: false
 #| warning: false
-#| message: false 
+#| message: false
 
 #create embedding
 set.seed(1039)
@@ -166,6 +166,7 @@ plot_data <- data.frame(
 ```{r}
 #| echo: false
 #| layout-ncol: 2
+#| fig-cap: "Figure 1: Clustered Sentences Embeddings"
 
 p <- ggplot(plot_data, aes(UMAP1, UMAP2, colour = clusters, text = text)) +
   labs(title = "GPT 4o Mini",
@@ -464,21 +465,98 @@ colnames(table_data) <- c(
 table_data$'Mean (%)' <- round(table_data$'Mean (%)'*100, 1)
 table_data$'Standard Deviation (%)' <- round(table_data$'Standard Deviation (%)'*100, 1)
 
-kable(table_data) |> collapse_rows(valign = 'top') |> kable_classic(full_width = F, html_font = "Cambria")
-
+kable(table_data, caption = "<center>Table 1: Performance Evaluation Metrics by Model </center>") |> collapse_rows(valign = 'top') |> kable_classic(full_width = F, html_font = "Cambria") |>
+row_spec(seq(3, nrow(table_data), 3), extra_css = "border-bottom: 1px solid;")
 ```
 
 # Discussion {#sec-discussion}
-As the sentence embedding scatterplots demonstrate, models all tended to classify topics as inappropriate in the second cluster (highlighted in green) more than the other two. Manual inspection of the texts in this cluster showed they pertain to sexual health, arousal, puberty, and external anatomy. A few examples of sentences in each cluster are below, as well as statistics showing how much of each cluster was classified as inappropriate by each model.
 
-[insert examples and table of statistics]
+As the sentence embedding scatterplots demonstrate, models all tended to classify topics as inappropriate in the second cluster (highlighted in green) more than the other two. Manual inspection of the texts in this cluster showed they pertain to sexual health, arousal, puberty, and external anatomy. A few examples of sentences in each cluster are below, as well as the mean and standard deviation percentages of each cluster classified as inappropriate by each model across 30 trials.
 
-[insert discussion of how this relates to human attitudes on sexual education, current curriculum around the world]
+```{r}
+#| echo: false
+#| output: true
+#| warning: false
+#| message: false
+
+clusters <- plot_data$clusters
+cluster_data <- cbind(trial_data, clusters)
+
+trials <- c(1:30)
+cl1s <- data.frame(trials = trials)
+cl2s <- data.frame(trials = trials)
+cl3s <- data.frame(trials = trials)
+cols <- colnames(cluster_data[2:(ncol(cluster_data)-1)])
+
+prop <- function(mod, trial_num, cl) {
+  cluster <- filter(cluster_data, clusters == cl)
+  sum <- 0
+    for (j in 1:nrow(cluster)) {
+      sum <- sum + cluster[mod][j,][[1]][trial_num]
+    }
+    return(sum/nrow(cluster))
+  }
+
+for (mod in 2:(length(cols) + 1)) {
+  c1s <- vector("numeric", length = 30)
+  c2s <- vector("numeric", length = 30)
+  c3s <- vector("numeric", length = 30)
+  for (i in 1:30) {
+    c1s[i] <- prop(mod, i, 1)
+    c2s[i] <- prop(mod, i, 2)
+    c3s[i] <- prop(mod, i, 3)
+  }
+  cl1s[cols[mod-1]] <- c1s
+  cl2s[cols[mod-1]] <- c2s
+  cl3s[cols[mod-1]] <- c3s
+}
+
+table_data <- data.frame(Model = c(rep("GPT 4o Mini", 3), rep("GPT 5.4 Mini", 3), rep("Deepseek V4 Flash", 3), rep("Deepseek V4 Pro", 3), rep("Claude Haiku 4.5", 3)),
+           Cluster = c(rep(c("1", "2", "3"), 5)),
+           "Mean (%)" = c(mean(cl1s$gpt_4o_mini), mean(cl2s$gpt_4o_mini), mean(cl3s$gpt_4o_mini), mean(cl1s$gpt_5.4_mini), mean(cl2s$gpt_5.4_mini), mean(cl3s$gpt_5.4_mini), mean(cl1s$deepseek_v4_flash), mean(cl2s$deepseek_v4_flash), mean(cl3s$deepseek_v4_flash), mean(cl1s$deepseek_v4_pro), mean(cl2s$deepseek_v4_pro), mean(cl3s$deepseek_v4_pro), mean(cl1s$claude_haiku_4_5), mean(cl2s$claude_haiku_4_5), mean(cl3s$claude_haiku_4_5)),
+           'Standard Deviation (%)' = c(sd(cl1s$gpt_4o_mini), sd(cl2s$gpt_4o_mini), sd(cl3s$gpt_4o_mini), sd(cl1s$gpt_5.4_mini), sd(cl2s$gpt_5.4_mini), sd(cl3s$gpt_5.4_mini), sd(cl1s$deepseek_v4_flash), sd(cl2s$deepseek_v4_flash), sd(cl3s$deepseek_v4_flash), sd(cl1s$deepseek_v4_pro), sd(cl2s$deepseek_v4_pro), sd(cl3s$deepseek_v4_pro), sd(cl1s$claude_haiku_4_5), sd(cl2s$claude_haiku_4_5), sd(cl3s$claude_haiku_4_5)))
+
+colnames(table_data) <- c(
+  "Model",
+  "Cluster",
+  "Mean (%)",
+  "Standard Deviation (%)"
+)
+
+table_data$'Mean (%)' <- round(table_data$'Mean (%)'*100, 1)
+table_data$'Standard Deviation (%)' <- round(table_data$'Standard Deviation (%)'*100, 1)
+
+table_data <- table_data |> relocate(Cluster, .before = Model)
+table_data <- table_data |> arrange(Cluster)
+
+kable(table_data, caption = "<center>Table 2: Percentage Classified as Innapropriate by Cluster</center>") |> collapse_rows(valign = 'top', columns = 1) |> kable_classic(full_width = F, html_font = "Cambria") |> row_spec(seq(5, nrow(table_data), 5), extra_css = "border-bottom: 1px solid;")
+```
+
+```{r}
+plot_data
+```
+
+Cluster 1:
+\indent Even though that person is not actually touching your body, talking about sex or your body in this way can be a kind of sexual abuse.
+\indent If you say online that someone is fat or skinny or sexy or ugly or beautiful or handsome, what you have said is really never private once those words are on the Internet.
+\indent Some websites are not always what they tell you they are.
+
+Cluster 2:
+\indent The IUD, the implant, and Depo-Provera are the most effective kinds of birth control.
+\indent Others believe that using the rhythm method and withdrawal method is fine.
+\indent And yet people, both kids and adults, who are HIV pos- itive or who have developed AIDS have been discriminated against.
+
+Cluster 3:
+\indent If you are male, your penis and testicles are two of your sex organs.
+\indent Identical twins begin if a single egg splits into two after it has been fertilized.
+\indent In most births, the baby’s head pushes out of the vagina ﬁrst.
+
+\[insert discussion of how this relates to human attitudes on sexual education, current curriculum around the world\]
 
 Due to a lack of ground truth data, model performances were measured using recall and precision metrics that compare responses to the overall model consensus. According to these statistics, GPT 5.4 had the highest mean recall (79.0%) and lowest mean precision (35.4%), meaning it correctly classified the most inappropriate sentences, but incorrectly classified the most appropriate ones. Claude Haiku demonstrated the opposite behaviour, with the lowest mean recall (21.3%) and highest mean precision (57.3%). This model was much more conservative when classifying text as inappropriate, only putting three sentences in this category out of 100 prompts and 30 trials for each prompt. It should be noted that Claude Haiku had no variance in its responses, and always responded with Yes or No for each unique prompt. GPT 4o Mini had the highest mean F score (49.3%), demonstrating the most balanced behaviour overall, while Claude Haiku had the lowest (31.1%).
 
-All of these scores fell within the range of 30% to 60%, with the exception of GPT 5.4 Mini's recall score of 79.0%. Rather than indicating poor performance across all models, as they would if these metrics were based on ground truth, they demonstrate a lack of model consensus on the proper threshold for what content is age appropriate for children ten and older. [comment on how this aligns with varying human attitudes around sex ed]
+All of these scores fell within the range of 30% to 60%, with the exception of GPT 5.4 Mini's recall score of 79.0%. Rather than indicating poor performance across all models, as they would if these metrics were based on ground truth, they demonstrate a lack of model consensus on the proper threshold for what content is age appropriate for children ten and older. \[comment on how this aligns with varying human attitudes around sex ed\]
 
-[add conclusion]
+\[add conclusion\]
 
 # References
