@@ -6,7 +6,7 @@ author:
 thanks: "Code and data are available at: https://github.com/rosiet1039/sex_ed_classification_paper"
 date: today
 date-format: long
-abstract: "While sexual education is a critical part of child development, there is debate around how and when it should be taught. Social media companies use large language models tools to flag content that is inappropriate for younger audiences. Using zero-shot learning, this report examines how generative AI classifies the age appropriateness of sexual education material in order to understand what language factors into this decision. Model performances are then evaluated based on how they compare to the general model consensus."
+abstract: "While sexual education is a critical part of child development, there is debate around how and when it should be taught. Social media companies use large language models tools to flag content that is inappropriate for younger audiences. Using zero-shot learning, this report examines how generative AI classifies the age appropriateness of sexual education material in order to understand what language factors into this decision. Model performance is then evaluated based on how it compares to the general model consensus."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -26,19 +26,21 @@ library(uwot)
 library(ggplot2)
 library(ggrepel)
 library(ggpubr)
+library(tidyquery)
 
 # loading data
 data <- read_csv("../data/response_clean.csv")
 raw <- read_csv("../data/response_data.csv")
+sent <- read_csv("../data/sentences2.csv")
 ```
 
 # Introduction
 
 **Due to the subject matter, this paper contains sensitive language that may be considered offensive.**
 
-The state of sexuality education in schools varies around the world. The topic of if, when, and how to introduce children to certain subjects is divisive, and often raises religious, political, and moral issues. According to the @citeWHO, comprehensive sexuality education is defined as "a curriculum‑based, incremental and scientifically-accurate approach that teaches children and young people about the cognitive, emotional, physical and social aspects of sexuality in a culturally-relevant and age-appropriate way." That being said, what is considered age-appropriate for a given demographic is hard to define. Even if it could be universally agreed upon that a piece of content was inappropriate for children to consume, the exact reasons why may be hard to put into words. The exact criteria often comes down to what United States Supreme Court Justice Potter Stewart once said when asked to define obscene pornography: "I know it when I see it" [@citeLattman].
+The state of sexuality education in schools varies around the world. The topic of if, when, and how to introduce children to certain subjects is divisive, and often raises religious, political, and moral issues. Comprehensive sexuality education (CSE) is "a curriculum‑based, incremental and scientifically-accurate approach that teaches children and young people about the cognitive, emotional, physical and social aspects of sexuality in a culturally-relevant and age-appropriate way." [@citeWHO]. That being said, what is considered age-appropriate for a given demographic is hard to define. Even if it could be universally agreed upon that a piece of content was inappropriate for children to consume, the exact reasons why may be hard to put into words. The exact criteria often comes down to what United States Supreme Court Justice Potter Stewart once said when asked to define obscene pornography: "I know it when I see it" [@citeLattman].
 
-According to a 2024 report, 66,000 Instagram posts, 347,200 Tweets, and 1.7 million Facebook posts were shared every minute of the year [@citeDomo]. Many of these pieces of content may contain sensitive themes. Websites such as Youtube or TikTok are frequented by children seeking educational information [@citeDoring]. In the early 2000s, before censorship laws were put in place, the internet was essentially unregulated, allowing anyone with internet access to consume and post offensive, violent, and pornographic material. Over the years, various countries have put legislation in place to help hide sensitive content from younger users, such as Canada's recent Bill C-34, which mandates the implementation of safeguards on social media sites and AI chatbots in order to protect children from harmful material [@citeC34]. The detection of inappropriate content on websites frequented by minors has thus become a legal necessity, making research in the area of data classification of great interest to social media companies. Seeing as it is virtually impossible for humans to manually check content at this volume, Justice Stewart's criteria falls short in today's world.
+In 2024, 66,000 Instagram posts, 347,200 Tweets, and 1.7 million Facebook posts were shared every minute [@citeDomo]. Some pieces of content may have contained sensitive themes. Websites such as Youtube or TikTok are frequented by children seeking educational information [@citeDoring]. In the early 2000s, before censorship laws were put in place, the internet was essentially unregulated, allowing anyone with internet access to consume and post offensive, violent, and pornographic material. Over the years, various countries have put legislation in place to help hide sensitive content from younger users, such as Canada's recent Bill C-34, which mandates the implementation of safeguards on social media sites and AI chatbots in order to protect children from harmful material [@citeC34]. The detection of inappropriate content on websites frequented by minors has thus become a legal necessity, making research in the area of data classification of great interest to social media companies. Seeing as it is virtually impossible for humans to manually check content at this volume, Justice Stewart's criteria falls short in today's world.
 
 Instead, companies perform this detection using a mix of algorithms and user reports. In 2021, Meta announced they would begin using artificial intelligence models trained with few-shot learning to detect harmful content on their platforms [@citeMeta]. Few-shot learning is a technique in which a model is provided with some small number of demonstrative examples before a task is given [@citeBrown]. This is a common method used to help improve the accuracy of LLM text classification. Text classification is an important area of natural language processing, a subfield of computer science that focuses on getting computers to work with human language. Traditional methods for representing text ignored semantic meaning, and would, for example, treat the word "tie" the same whether it referred to the accessory or an equal score [@citeAltinel]. Newer models have overcome this limitation and are able to not only discern between homonyms, but understand tonal differences in text that can be easily picked up on by humans but are very difficult to define. This has vastly broadened the use cases for artificial intelligence.
 
@@ -56,7 +58,7 @@ The content of this paper involves three main subjects: (1) childhood sexuality 
 
 ## Childhood Sexuality Education
 
-Legislation regarding sex education varies greatly around the world, even within countries such as Canada and the United States. An extreme example of this is the United States, which is known for its great political divide. SEICUS, an organization dedicated to promoting healthy sexual education in the US, has created detailed state profiles that go in depth on each region's position on how sex ed should be delivered to students [@citeSEICUS]. As of 2025, 14 states provide abstinence-only education, which has been shown to fail in protecting students from sexually transmitted illness and pregnancy [@citeSantelli]. 19 states exclude and/or stigmatize LGBTQ+ people in their sex education. Only three states, California; Oregon and Washington, require comprehensive sexuality education in all schools.
+Legislation regarding sex education varies greatly around the world, even within countries such as Canada and the United States. An extreme example of this is the United States, which is known for its great political divide. SEICUS, an organization dedicated to promoting healthy sexual education in the US, has created detailed state profiles that go in depth on each region's position on how sex ed should be delivered to students [@citeSEICUS]. As of 2025, 14 states provide abstinence-only education, which has been shown to fail in protecting students from sexually transmitted illness and pregnancy [@citeSantelli]. 19 states exclude and/or stigmatize LGBTQ+ people in their sex education. Only three states, California; Oregon and Washington, require CSE in all schools.
 
 Different areas have vastly different ideas of what is age-appropriate for those under the age of 18 to learn about. Parents and guardians may have a desire to protect their children from certain subjects for fear that learning about sexuality and gender will increase risky behaviour, however there is much evidence to the contrary [@citeWHO]. A paper on parental attitudes towards the K-12 gender and sexuality curriculum in Australia identified that many believe children are too immature and easily influenced to learn about these topics [@citeFerfolja]. Regardless of age-appropriateness, young people may be exposed to sexual concepts through the internet, peers, and real life experiences. Without a reliable foundation of knowledge from which to draw from, they may be unable to tell myth from truth.
 
@@ -98,27 +100,92 @@ The data used in this analysis is a random sample of sentences collected from th
 
 ## Cleaning
 
-In order to use *It's Perfectly Normal*, all text was extracted from a pdf of the book and parsed into sentences, which were then written into a csv file. Only main body text was included. While much effort was taken to preserve the book's intended text format, there were a small number of incomplete sentences in the sample. These were manually completed by referencing
+The 20th anniversary edition of *It's Perfectly Normal* is 116 pages front to back including the cover, and contains 30 chapters, including a one page introduction. In order to analyze the book, all text was extracted from a pdf of the book and parsed into sentences, which were then written into a csv file. Only text with font size 10.5 was included, which corresponded to the main body text. This resulted in a dataset of 1,214 sentences, spanning a total of 85 pages and 29 chapters, including the introduction (note that chapter 6 was not included as it contained no main body text). Summary statistics of the included number of sentences per chapter can be seen in @fig-perchap. While effort was taken to preserve the original format, the text parsing software only included the first segment of sentences that spanned multiple pages. These fragments were left in the dataset in order to avoid loss of data. Three of these sentences ended up in the random sample referenced in @sec-methods, and these were manually completed by referencing the original text. An example of a manually completed sentence is below:
+
+\indent Incomplete sentence from page 62: Sometimes, if a female becomes very sick, she may have \indent Manually completed sentence from pages 62 and 63: Sometimes, if a female becomes very sick, she may have her eggs removed by a doctor before she takes medication.
+
+```{r}
+#| echo: false
+#| output: true
+#| warning: false
+#| message: false
+#| label: fig-perchap
+
+sent$chapter[is.na(sent$chapter)] <- 0
+sentchap <- query("SELECT chapter, count(chapter) as sentnum FROM sent GROUP BY chapter")
+sentpage <- query("SELECT page, count(page) as sentnum FROM sent GROUP BY page")
+table_data <- data.frame(per = c('Per Chapter', 'Per Page'), mean = c(mean(sentchap$sentnum), mean(sentpage$sentnum)), sd = c(sd(sentchap$sentnum), sd(sentpage$sentnum)))
+
+colnames(table_data) <- c("", "Mean", "S.D.")
+
+kable(table_data, caption = "Distribution of Sentences", booktabs = T) |> collapse_rows(valign = 'top', columns = 1) |> kable_classic(full_width = F, html_font = "Cambria") |> footnote("*Over included chapters and pages", general_title = "")
+```
 
 # Methods {#sec-methods}
 
 Several models were used to examine how generative LLMs classify text-based sexual education material. Default parameters were maintained on all models except for temperature. The temperature of a model indicates the variability of its responses, with 0 being the least variable and 1 the most. This parameter was set to 0.4 in order to examine how model response varies. The models used were Open AI's GPT 4o mini and GPT 5.4 mini, Deepseek's V4 Flash and V4 Pro, and Claude Haiku 4.5 [@citeGPT4o] [@citeGPT5] [@citeDeepseekv4] [@citeClaudeHaiku].
 
-In order to prompt the models, zero-shot learning was employed. Zero-shot refers to a prompting style where no demonstrative examples are provided, and the model must base its answer on previous knowledge. 100 unique sentence excerpts from *It's Perfectly Normal* were provided to each model, in the following format: 'Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no \[sentence in quotations\]'. Models then provide a yes or no response. Each text excerpt was provided to each model 30 times, and responses were recorded.
+In order to prompt the models, zero-shot learning was employed. Zero-shot refers to a prompting style where no demonstrative examples are provided, and the model must base its answer on previous knowledge. A random sample of 100 unique sentence excerpts from *It's Perfectly Normal* were given to each model 30 times. The prompt template is as follows: 'Is the following text in quotes appropriate for children ages 10 and up? Answer yes or no \[sentence in quotations\]'. The only deviation to this format was in the case of Claude Haiku 4.5, which disregarded the instruction to respond with yes or no. The model did, however, comply when 'Answer yes or no' was changed to 'Answer with only yes or no', and thus this slight prompt variation was used.
 
 # Results {#sec-results}
+
+Models all gave yes or no answers to each prompt. All response variations can be found in Table @fig-responses.
+
+Note that here on out, a "positive" classification refers to a negative model response, or in other words a classification of inappropriate.
+
+```{r}
+#| echo: false
+#| output: true
+#| warning: false
+#| message: false
+#| label: fig-responses
+table_data <- data.frame(model = c("GPT 4o Mini", "GPT 5.4 Mini", "Deepseek V4 Flash", "Deepseek V4 Pro", "Claude Haiku 4.5"),
+                         responses = c("Yes., No., Yes", "Yes., No., Yes, No", "Yes., Yes, No, No., yes, no", "Yes, yes, no, No", "Yes, No, No., Yes"))
+
+kable(table_data, caption = "Model Responses", booktabs = T) |> collapse_rows(valign = 'top', columns = 1) |> kable_classic(full_width = F, html_font = "Cambria")
+```
 
 ## Semantic Embedding and Clustering
 
 In order to understand what kind of language tended to be classified as inappropriate, semantic text embeddings were created for each sentence. This refers to the process of translating text into a long list of numbers called a vector, which points to an area in multi-dimensional space. This translation takes into account semantic meaning, rather than just the words themselves, so sentences that mean similar things will be located closer together. This was done using function 'textEmbed' from the 'text' package in R, with model bert-case-uncased, which can be found for free on HuggingFace [@citeText] [@citeBERT].
 
-The sentences were then divided into clusters using the @citeHartigan K-means algorithm. This algorithm attempts to find the optimal way to divide data into some pre specified k groups called clusters. This grouping is done based on the Euclidean distance (straight length) between points. In this case, clustering helps to identify the more specific themes at play within the sample of sentences. K=3 was chosen for the number of clusters. Through manual inspection, the following themes were identified:
+The sentences were then divided into clusters using the @citeHartigan K-means algorithm. This algorithm attempts to find the optimal way to divide data into some pre specified k groups called clusters. This grouping is done based on the Euclidean distance (straight length) between points. In this case, clustering helps to identify the more specific themes at play within the sample of sentences. K=3 was chosen for the number of clusters, and the following themes were identified:
 
-1: Myths, Life Advice, and Internet Safety 2: Healthcare, STIs, Arousal, Puberty, and External Anatomy 3: Internal Biology and Anatomy
+1: Myths, Life Advice, and Internet Safety
 
-\[Question for Rohan: Is there a more objective way to chose the number of clusters? I picked 3 because it produced the clearest themes/patterns in each cluster. Also- is there a more reliable way to identify said themes? I simply identified them by reading the sentences in each cluster. Would it be more "objective" if I fed some sample of sentences in each cluster to a pretrained model and asked it to identify themes?\]
+2: Healthcare, STIs, Arousal, Puberty, and External Anatomy
 
-The embeddings were then compressed into two dimensions using Uniform Manifold Approximation and Projection (UMAP), a dimension reduction technique, with cosine similarity (angular distance between vectors) as the chosen distance metric. This was done in order to visualize the embeddings in the scatterplots below:
+3: Internal Biology and Anatomy
+
+The percentage of sentences positively classified in each grouping can be found in @fig-bycluster. These are some examples of sentences in each cluster:
+
+Cluster 1:
+
+\indent Even though that person is not actually touching your body, talking about sex or your body in this way can be a kind of sexual abuse.
+
+\indent If you say online that someone is fat or skinny or sexy or ugly or beautiful or handsome, what you have said is really never private once those words are on the Internet.
+
+\indent Some websites are not always what they tell you they are.
+
+Cluster 2:
+
+\indent The IUD, the implant, and Depo-Provera are the most effective kinds of birth control.
+
+\indent Others believe that using the rhythm method and withdrawal method is fine.
+
+\indent And yet people, both kids and adults, who are HIV pos- itive or who have developed AIDS have been discriminated against.
+
+Cluster 3:
+
+\indent If you are male, your penis and testicles are two of your sex organs.
+
+\indent Identical twins begin if a single egg splits into two after it has been fertilized.
+
+\indent In most births, the baby’s head pushes out of the vagina ﬁrst.
+
+It was decided that three clusters formed the most clear thematic division, however further insight could potentially be gained by grouping the data into some other number of clusters. Additionally, the above themes were identified by manually inspecting the sentences in each cluster, but other terms could be utilized. An alternative method for labeling clusters is to feed a sample of sentences from each group to a generative model and prompting it to identify themes.
+
+The embeddings were then compressed into two dimensions using Uniform Manifold Approximation and Projection (UMAP), a dimension reduction technique, with cosine similarity (angular distance between vectors) as the chosen distance metric. This was done in order to visualize the embeddings in the form of scatterplots (@fig-embeddings).
 
 ```{r}
 #| echo: false
@@ -166,11 +233,12 @@ plot_data <- data.frame(
 ```{r}
 #| echo: false
 #| layout-ncol: 2
+#| label: fig-embeddings
 #| fig-cap: "Figure 1: Clustered Sentences Embeddings"
 
 p <- ggplot(plot_data, aes(UMAP1, UMAP2, colour = clusters, text = text)) +
   labs(title = "GPT 4o Mini",
-       size = "Proportion of \n Inappropriate Classifications",
+       size = "Proportion of \n Positive Classifications",
        colour = "Clusters") +
   geom_point(alpha = 0.7, aes(size = gpt_4o_mini)) +
   theme_minimal() +
@@ -350,28 +418,12 @@ ggplot(plot_data, aes(UMAP1, UMAP2, colour = clusters, text = text)) +
 as_ggplot(get_legend(p))
 ```
 
-## Performance Metrics
-
-Due to a lack of reliable labelled data, model responses could not be compared to a ground truth. Model performances were thus measured using alternative precision and recall metrics found in @citeFedorchuk, which compare individual classifications to overall model consensus. Consider the probability $P(\delta_i)$ of sentence $\delta_i$ to be classified as inappropriate (model response "No"). Then:
-
-$$P(\delta_i) = \sum_{k=1}^{s} \frac{S_k(\delta_i)}{s}$$
-
-Where $$S_k(\delta_i) = \begin{cases}
-0 & \text{if } Yes \\
-1 & \text{if } No
-\end{cases}$$ is the classification result from model $S_k$ of sentence $\delta_i$, and $s$ is the total number of models
-
-Assuming sentences are evenly distributed, valid probabilistic measures of precision $Pr(S_k)$ and recall $Rc(S_k)$ are as follows:
-
-$$Pr(S_k) = \sum_{i=1}^{d} \frac{S_k(\delta_i)P(\delta_i)}{S_k(\delta_i)} \space \space \space Rc(S_k) = \sum_{i=1}^{d} \frac{S_k(\delta_i)P(\delta_i)}{P(\delta_i)}$$
-
-Then the F score is the harmonic mean of these two metrics: $$F(S_k) = \frac{2Pr(S_k)Rc(S_k)}{Pr(S_k) + Rc(S_k)}$$ These statistics were calculated for each model 30 times across the 30 trials. The (arithmetic) mean and standard deviation of each metric is shown below.
-
 ```{r}
 #| echo: false
 #| output: true
 #| warning: false
 #| message: false
+#| label: fig-bycluster
 
 # turn response data into ones and zeros
 n = nrow(raw)
@@ -392,6 +444,83 @@ for (col in cols){
   }
   trial_data[[col]] <- trials
 }
+
+clusters <- plot_data$clusters
+cluster_data <- cbind(trial_data, clusters)
+
+trials <- c(1:30)
+cl1s <- data.frame(trials = trials)
+cl2s <- data.frame(trials = trials)
+cl3s <- data.frame(trials = trials)
+cols <- colnames(cluster_data[2:(ncol(cluster_data)-1)])
+
+prop <- function(mod, trial_num, cl) {
+  cluster <- filter(cluster_data, clusters == cl)
+  sum <- 0
+    for (j in 1:nrow(cluster)) {
+      sum <- sum + cluster[mod][j,][[1]][trial_num]
+    }
+    return(sum/nrow(cluster))
+  }
+
+for (mod in 2:(length(cols) + 1)) {
+  c1s <- vector("numeric", length = 30)
+  c2s <- vector("numeric", length = 30)
+  c3s <- vector("numeric", length = 30)
+  for (i in 1:30) {
+    c1s[i] <- prop(mod, i, 1)
+    c2s[i] <- prop(mod, i, 2)
+    c3s[i] <- prop(mod, i, 3)
+  }
+  cl1s[cols[mod-1]] <- c1s
+  cl2s[cols[mod-1]] <- c2s
+  cl3s[cols[mod-1]] <- c3s
+}
+
+table_data <- data.frame(Model = c(rep("GPT 4o Mini", 3), rep("GPT 5.4 Mini", 3), rep("Deepseek V4 Flash", 3), rep("Deepseek V4 Pro", 3), rep("Claude Haiku 4.5", 3)),
+           Cluster = c(rep(c("1", "2", "3"), 5)),
+           "Mean (%)" = c(mean(cl1s$gpt_4o_mini), mean(cl2s$gpt_4o_mini), mean(cl3s$gpt_4o_mini), mean(cl1s$gpt_5.4_mini), mean(cl2s$gpt_5.4_mini), mean(cl3s$gpt_5.4_mini), mean(cl1s$deepseek_v4_flash), mean(cl2s$deepseek_v4_flash), mean(cl3s$deepseek_v4_flash), mean(cl1s$deepseek_v4_pro), mean(cl2s$deepseek_v4_pro), mean(cl3s$deepseek_v4_pro), mean(cl1s$claude_haiku_4_5), mean(cl2s$claude_haiku_4_5), mean(cl3s$claude_haiku_4_5)),
+           'Standard Deviation (%)' = c(sd(cl1s$gpt_4o_mini), sd(cl2s$gpt_4o_mini), sd(cl3s$gpt_4o_mini), sd(cl1s$gpt_5.4_mini), sd(cl2s$gpt_5.4_mini), sd(cl3s$gpt_5.4_mini), sd(cl1s$deepseek_v4_flash), sd(cl2s$deepseek_v4_flash), sd(cl3s$deepseek_v4_flash), sd(cl1s$deepseek_v4_pro), sd(cl2s$deepseek_v4_pro), sd(cl3s$deepseek_v4_pro), sd(cl1s$claude_haiku_4_5), sd(cl2s$claude_haiku_4_5), sd(cl3s$claude_haiku_4_5)))
+
+colnames(table_data) <- c(
+  "Model",
+  "Cluster",
+  "Mean (%)",
+  "Standard Deviation (%)"
+)
+
+table_data$'Mean (%)' <- round(table_data$'Mean (%)'*100, 1)
+table_data$'Standard Deviation (%)' <- round(table_data$'Standard Deviation (%)'*100, 1)
+
+table_data <- table_data |> relocate(Cluster, .before = Model)
+table_data <- table_data |> arrange(Cluster)
+
+kable(table_data, caption = "Percentage Positively Classified by Cluster", booktabs = T) |> collapse_rows(valign = 'top', columns = 1) |> kable_classic(full_width = F, html_font = "Cambria") |> row_spec(seq(5, nrow(table_data), 5), extra_css = "border-bottom: 1px solid;")
+```
+
+## Performance Metrics
+
+Due to a lack of reliable labelled data, model responses could not be compared to a ground truth. Model performances were thus measured using alternative precision and recall metrics found in @citeFedorchuk, which compare individual classifications to overall model consensus. Consider the probability $P(\delta_i)$ of sentence $\delta_i$ to be positively classified. Then:
+
+$$P(\delta_i) = \sum_{k=1}^{s} \frac{S_k(\delta_i)}{s}$$
+
+Where $$S_k(\delta_i) = \begin{cases}
+0 & \text{if } Negative \\
+1 & \text{if } Positive
+\end{cases}$$ is the classification result from model $S_k$ of sentence $\delta_i$, and $s$ is the total number of models
+
+Assuming sentences are evenly distributed, valid probabilistic measures of precision $Pr(S_k)$ and recall $Rc(S_k)$ are as follows:
+
+$$Pr(S_k) = \sum_{i=1}^{d} \frac{S_k(\delta_i)P(\delta_i)}{S_k(\delta_i)} \space \space \space Rc(S_k) = \sum_{i=1}^{d} \frac{S_k(\delta_i)P(\delta_i)}{P(\delta_i)}$$
+
+Then the F score is the harmonic mean of these two metrics: $$F(S_k) = \frac{2Pr(S_k)Rc(S_k)}{Pr(S_k) + Rc(S_k)}$$ These statistics were calculated for each model 30 times across the 30 trials. The (arithmetic) mean and standard deviation of each metric are shown in @fig-metrics.
+
+```{r}
+#| echo: false
+#| output: true
+#| warning: false
+#| message: false
+#| label: fig-metrics
 
 # metrics
 prob <- function(data_item, trial_num) {
@@ -465,98 +594,60 @@ colnames(table_data) <- c(
 table_data$'Mean (%)' <- round(table_data$'Mean (%)'*100, 1)
 table_data$'Standard Deviation (%)' <- round(table_data$'Standard Deviation (%)'*100, 1)
 
-kable(table_data, caption = "<center>Table 1: Performance Evaluation Metrics by Model </center>") |> collapse_rows(valign = 'top') |> kable_classic(full_width = F, html_font = "Cambria") |>
+kable(table_data, caption = "Performance Evaluation Metrics by Model", booktabs = T) |> collapse_rows(valign = 'top') |> kable_classic(full_width = F, html_font = "Cambria") |>
 row_spec(seq(3, nrow(table_data), 3), extra_css = "border-bottom: 1px solid;")
 ```
 
 # Discussion {#sec-discussion}
 
-As the sentence embedding scatterplots demonstrate, models all tended to classify topics as inappropriate in the second cluster (highlighted in green) more than the other two. Manual inspection of the texts in this cluster showed they pertain to sexual health, arousal, puberty, and external anatomy. A few examples of sentences in each cluster are below, as well as the mean and standard deviation percentages of each cluster classified as inappropriate by each model across 30 trials.
+As the sentence embedding scatterplots demonstrate, models all tended to classify topics as inappropriate in the second cluster (highlighted in green) more than the other two. Manual inspection of the texts in this cluster showed they pertain to sexual health, arousal, puberty, and external anatomy. In order to understand how the models were classifying certain specific topics, sentences relating to avoiding pregnancy, sexually transmitted infections, arousal, puberty, females, and males were manually picked. Aggregated statistics on how these sentences were classified can be found in @fig-topics. It should be noted that alternative sentence groupings could be chosen, for example the sentence "Sex hormones can also affect girls’ and boys’ feelings and moods." could have been included under the topic of puberty, but was not in this analysis.
+
+GPT 4o Mini and GPT 5.4 Mini tend to exhibit similar trends in terms of which topics are most and least appropriate. The two Deepseek models also have similarities.
+
+All models agree that puberty is an appropriate subject for children ten and up to learn about, which aligns with the biological reality that puberty begins around 8 for girls and 9 for boys [@citeCleveland].
+
+The models classified 10%-40% of sentences about avoiding pregnancy positively. In Ontario, it is suggested to teach students about "how to (...) avoid becoming a parent before they are ready" in the seventh grade, which is when most students are aged 12 to 13 [@citeOntario]. The *International Technical Guidance on Sexuality Education* (ITGoSE), however, recommends children start learning about contraceptives as young as 9, but suggests teaching students about abortion around the age of 15 to 18 or older [@citeITGoSE]. Sentences about STIs were classified positively 5%-25% of the time, which was lower than the previous topic by around 10 to 20 percentage points for all models except GPT 4o Mini. This is surprising as the two subjects tend to be taught together; both the province of Ontario and ITGoSE recommend introducing the subject at the same time as conversations about avoiding pregnancy [@citeOntario] [@citeITGoSE]. This could be related to online anti-choice sentiments in training datasets that may discourage discussions pertaining to pregnancy avoidance and termination [@citeTavrow].
+
+Arousal was considered the most inappropriate topic by both GPT models, with GPT 4o Mini classifying 55.0% and GPT 5.4 Mini classifying 50.83% positively. The Deepseek models only considered 10%-13% of these sentences to be inappropriate, and Claude considered this topic entirely appropriate, a noticeable difference between models. The province of Ontario mentions teaching 6th graders (around 11 to 12 years of age) about the adverse effects of consuming sexually explicit media, but otherwise does not mention the subject. ITGoSE explicitly names arousal, suggesting it be brought up around the ages of 9 to 12. Reproduction, however, is one of the first sexual education lessons taught to children; it is suggested in ITGoSE to teach students as young as 5 about the process of reproduction. Each model classified reproduction as more appropriate than arousal, yet arousal is an essential part of the reproductive process. Many cultures cultivate stigma around pleasure, especially when it is not required for insemination, while sanctifying reproduction [@citeKlein] [@citeKutner]. A clear example of this is in the case of the Virgin Mary, whose immaculate conception required no sexual contact whatsoever [@citeTinsley]. It has also been found in several studies that a significant portion of parents (43% in @citeHurst, 45% in @citeSimovska) do not want their children to learn about the pleasurable side of sex, potentially due to fear that it would incentivize the act [@citePariera]. The discrepancy in classification of sentences related to reproduction versus arousal indicates that models are absorbing anti-pleasure attitudes within their training corpora.
+
+Another notable difference between models is the classification of male and female topics. Both GPT 4o Mini and GPT 5.4 Mini positively classified sentences about men with around 20 to 30 percentage points more than that relating to women, while the remaining three models all displayed the inverse behaviour, though there was less of a difference in percentages. This could be due to the overlap between sentences about women and sentences about avoiding pregnancy. The topic of pregnancy avoidance placed near the middle in terms of appropriateness for both GPT models, while it was considered the least appropriate topic for the other three, and thus this could explain the discrepancy. Further research examining gendered classification differences on more controlled data would provide deeper insight.
 
 ```{r}
 #| echo: false
 #| output: true
 #| warning: false
 #| message: false
+#| label: fig-topics
 
-clusters <- plot_data$clusters
-cluster_data <- cbind(trial_data, clusters)
+abortion <- data[c(2, 3, 12, 18, 28, 40, 47, 57, 60, 69),2:7]
+sti <- data[c(10, 25, 30, 36, 37, 56, 73, 75, 77, 90, 91),2:7]
+female <- data[c(2, 4, 7, 9, 12, 13, 18, 20, 22, 28, 31, 33, 40, 46, 49, 60, 61, 65, 69, 80, 84, 87, 94, 96),2:7]
+male <- data[c(1, 11, 14, 15, 39, 44, 45, 58, 63, 64, 68, 89),2:7]
+arousal <- data[c(5, 22, 32, 44, 45, 58, 63, 89), 2:7]
+puberty <- data[c(14, 35, 53, 70, 72, 87, 89, 93, 95), 2:7]
+reproduction <- data[c(4, 7, 31, 38, 49, 51, 81, 82, 85, 88), 2:7]
 
-trials <- c(1:30)
-cl1s <- data.frame(trials = trials)
-cl2s <- data.frame(trials = trials)
-cl3s <- data.frame(trials = trials)
-cols <- colnames(cluster_data[2:(ncol(cluster_data)-1)])
+table_data <- data.frame(topics = c("Avoiding Pregnancy", "STIs", "Arousal", "Puberty", "Reproduction", "Female", "Male"),
+                         gpt_4o_mini = c(mean(abortion$gpt_4o_mini), mean(sti$gpt_4o_mini), mean(arousal$gpt_4o_mini), mean(puberty$gpt_4o_mini), mean(reproduction$gpt_4o_mini), mean(female$gpt_4o_mini), mean(male$gpt_4o_mini)),
+                         gpt_5.4_mini = c(mean(abortion$gpt_5.4_mini), mean(sti$gpt_5.4_mini), mean(arousal$gpt_5.4_mini), mean(puberty$gpt_5.4_mini), mean(reproduction$gpt_5.4_mini), mean(female$gpt_5.4_mini), mean(male$gpt_5.4_mini)),
+                         deepseek_v4_flash = c(mean(abortion$deepseek_v4_flash), mean(sti$deepseek_v4_flash), mean(arousal$deepseek_v4_flash), mean(puberty$deepseek_v4_flash), mean(reproduction$deepseek_v4_flash), mean(female$deepseek_v4_flash), mean(male$deepseek_v4_flash)),
+                         deepseek_v4_pro = c(mean(abortion$deepseek_v4_pro), mean(sti$deepseek_v4_pro), mean(arousal$deepseek_v4_pro), mean(puberty$deepseek_v4_pro), mean(reproduction$deepseek_v4_pro), mean(female$deepseek_v4_pro), mean(male$deepseek_v4_pro)),
+                         claude_haiku_4_5 = c(mean(abortion$claude_haiku_4_5), mean(sti$claude_haiku_4_5), mean(arousal$claude_haiku_4_5), mean(puberty$claude_haiku_4_5), mean(reproduction$claude_haiku_4_5), mean(female$claude_haiku_4_5), mean(male$claude_haiku_4_5)))
 
-prop <- function(mod, trial_num, cl) {
-  cluster <- filter(cluster_data, clusters == cl)
-  sum <- 0
-    for (j in 1:nrow(cluster)) {
-      sum <- sum + cluster[mod][j,][[1]][trial_num]
-    }
-    return(sum/nrow(cluster))
-  }
+table_data[,2:6] <- round(table_data[,2:6], 4)*100
 
-for (mod in 2:(length(cols) + 1)) {
-  c1s <- vector("numeric", length = 30)
-  c2s <- vector("numeric", length = 30)
-  c3s <- vector("numeric", length = 30)
-  for (i in 1:30) {
-    c1s[i] <- prop(mod, i, 1)
-    c2s[i] <- prop(mod, i, 2)
-    c3s[i] <- prop(mod, i, 3)
-  }
-  cl1s[cols[mod-1]] <- c1s
-  cl2s[cols[mod-1]] <- c2s
-  cl3s[cols[mod-1]] <- c3s
-}
-
-table_data <- data.frame(Model = c(rep("GPT 4o Mini", 3), rep("GPT 5.4 Mini", 3), rep("Deepseek V4 Flash", 3), rep("Deepseek V4 Pro", 3), rep("Claude Haiku 4.5", 3)),
-           Cluster = c(rep(c("1", "2", "3"), 5)),
-           "Mean (%)" = c(mean(cl1s$gpt_4o_mini), mean(cl2s$gpt_4o_mini), mean(cl3s$gpt_4o_mini), mean(cl1s$gpt_5.4_mini), mean(cl2s$gpt_5.4_mini), mean(cl3s$gpt_5.4_mini), mean(cl1s$deepseek_v4_flash), mean(cl2s$deepseek_v4_flash), mean(cl3s$deepseek_v4_flash), mean(cl1s$deepseek_v4_pro), mean(cl2s$deepseek_v4_pro), mean(cl3s$deepseek_v4_pro), mean(cl1s$claude_haiku_4_5), mean(cl2s$claude_haiku_4_5), mean(cl3s$claude_haiku_4_5)),
-           'Standard Deviation (%)' = c(sd(cl1s$gpt_4o_mini), sd(cl2s$gpt_4o_mini), sd(cl3s$gpt_4o_mini), sd(cl1s$gpt_5.4_mini), sd(cl2s$gpt_5.4_mini), sd(cl3s$gpt_5.4_mini), sd(cl1s$deepseek_v4_flash), sd(cl2s$deepseek_v4_flash), sd(cl3s$deepseek_v4_flash), sd(cl1s$deepseek_v4_pro), sd(cl2s$deepseek_v4_pro), sd(cl3s$deepseek_v4_pro), sd(cl1s$claude_haiku_4_5), sd(cl2s$claude_haiku_4_5), sd(cl3s$claude_haiku_4_5)))
-
-colnames(table_data) <- c(
-  "Model",
-  "Cluster",
-  "Mean (%)",
-  "Standard Deviation (%)"
+colnames(table_data) <- c("Topics",
+  "GPT 4o Mini (%)", "GPT 5.4 Mini (%)", "Deepseek V4 Flash (%)", "Deepseek V4 Pro (%)", "Claude Haiku 4.5 (%)"
 )
-
-table_data$'Mean (%)' <- round(table_data$'Mean (%)'*100, 1)
-table_data$'Standard Deviation (%)' <- round(table_data$'Standard Deviation (%)'*100, 1)
-
-table_data <- table_data |> relocate(Cluster, .before = Model)
-table_data <- table_data |> arrange(Cluster)
-
-kable(table_data, caption = "<center>Table 2: Percentage Classified as Innapropriate by Cluster</center>") |> collapse_rows(valign = 'top', columns = 1) |> kable_classic(full_width = F, html_font = "Cambria") |> row_spec(seq(5, nrow(table_data), 5), extra_css = "border-bottom: 1px solid;")
+kable(table_data, caption = "Percentage of Sentences Classified as Inappropriate by Topic", booktabs = T, escape = FALSE) |> kable_classic(full_width = F, html_font = "Cambria") |> kable_styling(bootstrap_options = "striped")
 ```
-
-```{r}
-plot_data
-```
-
-Cluster 1:
-\indent Even though that person is not actually touching your body, talking about sex or your body in this way can be a kind of sexual abuse.
-\indent If you say online that someone is fat or skinny or sexy or ugly or beautiful or handsome, what you have said is really never private once those words are on the Internet.
-\indent Some websites are not always what they tell you they are.
-
-Cluster 2:
-\indent The IUD, the implant, and Depo-Provera are the most effective kinds of birth control.
-\indent Others believe that using the rhythm method and withdrawal method is fine.
-\indent And yet people, both kids and adults, who are HIV pos- itive or who have developed AIDS have been discriminated against.
-
-Cluster 3:
-\indent If you are male, your penis and testicles are two of your sex organs.
-\indent Identical twins begin if a single egg splits into two after it has been fertilized.
-\indent In most births, the baby’s head pushes out of the vagina ﬁrst.
-
-\[insert discussion of how this relates to human attitudes on sexual education, current curriculum around the world\]
 
 Due to a lack of ground truth data, model performances were measured using recall and precision metrics that compare responses to the overall model consensus. According to these statistics, GPT 5.4 had the highest mean recall (79.0%) and lowest mean precision (35.4%), meaning it correctly classified the most inappropriate sentences, but incorrectly classified the most appropriate ones. Claude Haiku demonstrated the opposite behaviour, with the lowest mean recall (21.3%) and highest mean precision (57.3%). This model was much more conservative when classifying text as inappropriate, only putting three sentences in this category out of 100 prompts and 30 trials for each prompt. It should be noted that Claude Haiku had no variance in its responses, and always responded with Yes or No for each unique prompt. GPT 4o Mini had the highest mean F score (49.3%), demonstrating the most balanced behaviour overall, while Claude Haiku had the lowest (31.1%).
 
-All of these scores fell within the range of 30% to 60%, with the exception of GPT 5.4 Mini's recall score of 79.0%. Rather than indicating poor performance across all models, as they would if these metrics were based on ground truth, they demonstrate a lack of model consensus on the proper threshold for what content is age appropriate for children ten and older. \[comment on how this aligns with varying human attitudes around sex ed\]
+All of these scores fell within the range of 30% to 60%, with the exception of GPT 5.4 Mini's recall score of 79.0%. Rather than indicating poor performance across all models, as they would if these metrics were based on ground truth, they demonstrate a lack of model consensus on a threshold for content age appropriateness. This aligns with research on parental attitudes around sexual education, which found variability even among those who believe in CSE should be taught in schools.
 
-\[add conclusion\]
+In conclusion, models have varying thresholds for what content can be considered age appropriate for children ten and older, both in terms of particular topics, as well as the overall proportion of positive classifications. Similarities in topic classification were found between different versions of the same model, and the two Deepseek models somewhat aligned with Claude Haiku 4.5. All models tended to positively classify sentences regarding arousal, stis, and avoiding pregnancy more than other topics, with arousal being the most positively classified for the two GPT models, and avoiding pregnancy for the other three. Discrepancies were found between models regarding classification of sentences pertaining to men versus women, which may be due to topic overlap. Recall, precision, and F measure metrics found that GPT 5.4 Mini had the highest recall but lowest precision, Claude Haiku 4.5 had the highest precision and lowest recall, and GPT 4o Mini had the overall highest F measure, indicating it may be the best model for this task.
+
+A major limitation to this study is the lack of ground truth data with which to compare model responses. If reliable human-labeled data regarding attitudes around sexual education material were to become available, this would be an interesting area of investigation, and would allow for much better model evaluation. It would also be very valuable to replicate this research on other sexual education material, such as that found in another book or on the internet. Additionally, investigation into model classification of non-educational sexual material would be valuable to gain broader insight into model attitudes on sexuality as a whole. Research might also be done on a wider set of models, as this would also allow comparison between model size and classification. Some other variables that could be changed are model parameters such as temperature, how sentences were grouped into topics, and prompting style. The age threshold within the prompt was chosen based on the age recommendation in *It's Perfectly Normal*, however insight could be gained by looking into how classification changes based on the age group at hand, and these results could be compared to sexual education guidelines such as ITGoSE.
 
 # References

@@ -49,6 +49,14 @@ set.seed(1039)
 
 samp <- sentences[sample(1:nrow(sentences), 100),]
 
+# note: after this sample was collected, it was found that three sentences in
+# the sample were incomplete. these three sentences were manually completed by
+# referencing the pdf located in the data folder of this repo
+
+samp$text[6] <- "If you say online that someone is fat or skinny or sexy or ugly or beautiful or handsome, what you have said is really never private once those words are on the Internet."
+samp$text[20] <- "Sometimes, if a female becomes very sick, she may have her eggs removed by a doctor before she takes medication."
+samp$text[63] <- "Here’s what happens inside a male’s body when he has an erection: When his penis is not erect, blood trickles in and out of the penis continuously."
+
 # create df
 
 llm_data <- data.frame(
