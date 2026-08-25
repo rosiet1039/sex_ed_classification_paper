@@ -86,7 +86,10 @@ Text clustering is a type of unsupervised text classification, a method where in
 
 Zero-shot, one-shot, and few-shot learning are all prompting techniques used to improve the ability of a pre-trained model to perform a specified task. The model is first given some number of completed examples of said task, and then asked to perform it on new data. Few-shot refers to multiple examples, one-shot refers to one, and zero-shot asks the model to execute the task based solely on what it already knows. In the context of text classification, this would look like simply prompting the model to classify some piece of text, usually into a specified set of categories. Zero-shot is often used when there is no labeled data available with which to provide examples. While this method has less accuracy than one- and few-shot learning, it still proves to be quite successful, with GPT-3 achieving 64.3% accuracy on TriviaQA, a dataset of question and answer problems, and 76% on LAMBADA, a dataset used to test word prediction capabilities [@citeBrown].
 
-# Literature Review {#sec-lit}
+# Related Works {#sec-lit}
+The ability of LLMs to reflect human attitudes has been explored across several fields. @citeArgyle conditions GPT-3 on thousands of socio-demographic backstories from United States surveys in order to create "silicon samples" of human beings, and analyzes the model's ability to mirror the attitudes, behaviours, and opinions of said demographics. The results suggest that with sufficient conditioning, GPT-3 can be a novel tool for studying human populations in the absence of real subjects. @citeHorton similarly endows several models with various personas in order to analyze how LLMs behave in simulated economic experiments. They also find that LLMs can be used as a fast and inexpensive way to perform preliminary economic research.
+
+A useful application of this simulation of human attitudes is to give LLMs the task of interpreting the semantic meaning of text and other media. @citeGalke showes that pre-trained models like GPT, while outperformed by encoder-only pre-trained models, perform text classification more accurately than many newer methods. @citeChiu uses zero-, one-, and few-shot learning to analyze GPT-3's ability to classify text as racist, sexist, both, or neither. It is found to have an average accuracy of 55% to 67%, and accuracy up to 85% in a few-shot setting. This paper provides convincing evidence that LLMs such as GPT-3, with the help of few-shot learning, can be useful in detecting harmful content online. @citeGeorge introduces a dataset of content that has been labled sexually suggestive, sexually educative, or neither, from the social media platform TikTok. This labeled data is useful for training LLMs to improve detection of explicit content while avoiding the censorship of educational material. They validate the usefulness of this dataset by training two LLMs to classify its contents, and find that while difficult, the task is learnable.
 
 # Data {#sec-data}
 
@@ -102,14 +105,16 @@ The data used in this analysis is a random sample of sentences collected from th
 
 The 20th anniversary edition of *It's Perfectly Normal* is 116 pages front to back including the cover, and contains 30 chapters, including a one page introduction. In order to analyze the book, all text was extracted from a pdf of the book and parsed into sentences, which were then written into a csv file. Only text with font size 10.5 was included, which corresponded to the main body text. This resulted in a dataset of 1,214 sentences, spanning a total of 85 pages and 29 chapters, including the introduction (note that chapter 6 was not included as it contained no main body text). Summary statistics of the included number of sentences per chapter can be seen in @fig-perchap. While effort was taken to preserve the original format, the text parsing software only included the first segment of sentences that spanned multiple pages. These fragments were left in the dataset in order to avoid loss of data. Three of these sentences ended up in the random sample referenced in @sec-methods, and these were manually completed by referencing the original text. An example of a manually completed sentence is below:
 
-\indent Incomplete sentence from page 62: Sometimes, if a female becomes very sick, she may have \indent Manually completed sentence from pages 62 and 63: Sometimes, if a female becomes very sick, she may have her eggs removed by a doctor before she takes medication.
+> Incomplete sentence from page 62: Sometimes, if a female becomes very sick, she may have
+
+> Manually completed sentence from pages 62 and 63: Sometimes, if a female becomes very sick, she may have her eggs removed by a doctor before she takes medication.
 
 ```{r}
 #| echo: false
 #| output: true
 #| warning: false
 #| message: false
-#| label: fig-perchap
+#| tab: fig-perchap
 
 sent$chapter[is.na(sent$chapter)] <- 0
 sentchap <- query("SELECT chapter, count(chapter) as sentnum FROM sent GROUP BY chapter")
@@ -118,7 +123,7 @@ table_data <- data.frame(per = c('Per Chapter', 'Per Page'), mean = c(mean(sentc
 
 colnames(table_data) <- c("", "Mean", "S.D.")
 
-kable(table_data, caption = "Distribution of Sentences", booktabs = T) |> collapse_rows(valign = 'top', columns = 1) |> kable_classic(full_width = F, html_font = "Cambria") |> footnote("*Over included chapters and pages", general_title = "")
+kable(table_data, caption = "Distribution of Sentences*", booktabs = T) |> collapse_rows(valign = 'top', columns = 1) |> kable_classic(full_width = F, html_font = "Cambria") |> footnote("*Over included chapters and pages", general_title = "")
 ```
 
 # Methods {#sec-methods}
@@ -129,7 +134,7 @@ In order to prompt the models, zero-shot learning was employed. Zero-shot refers
 
 # Results {#sec-results}
 
-Models all gave yes or no answers to each prompt. All response variations can be found in Table @fig-responses.
+Models all gave yes or no answers to each prompt. All response variations can be found in @fig-responses.
 
 Note that here on out, a "positive" classification refers to a negative model response, or in other words a classification of inappropriate.
 
@@ -138,7 +143,7 @@ Note that here on out, a "positive" classification refers to a negative model re
 #| output: true
 #| warning: false
 #| message: false
-#| label: fig-responses
+#| tab: fig-responses
 table_data <- data.frame(model = c("GPT 4o Mini", "GPT 5.4 Mini", "Deepseek V4 Flash", "Deepseek V4 Pro", "Claude Haiku 4.5"),
                          responses = c("Yes., No., Yes", "Yes., No., Yes, No", "Yes., Yes, No, No., yes, no", "Yes, yes, no, No", "Yes, No, No., Yes"))
 
@@ -159,33 +164,41 @@ The sentences were then divided into clusters using the @citeHartigan K-means al
 
 The percentage of sentences positively classified in each grouping can be found in @fig-bycluster. These are some examples of sentences in each cluster:
 
+
+
 Cluster 1:
 
-\indent Even though that person is not actually touching your body, talking about sex or your body in this way can be a kind of sexual abuse.
+> Even though that person is not actually touching your body, talking about sex or your body in this way can be a kind of sexual abuse.
 
-\indent If you say online that someone is fat or skinny or sexy or ugly or beautiful or handsome, what you have said is really never private once those words are on the Internet.
+> If you say online that someone is fat or skinny or sexy or ugly or beautiful or handsome, what you have said is really never private once those words are on the Internet.
 
-\indent Some websites are not always what they tell you they are.
+> Some websites are not always what they tell you they are.
+
+
 
 Cluster 2:
 
-\indent The IUD, the implant, and Depo-Provera are the most effective kinds of birth control.
+> The IUD, the implant, and Depo-Provera are the most effective kinds of birth control.
 
-\indent Others believe that using the rhythm method and withdrawal method is fine.
+> Others believe that using the rhythm method and withdrawal method is fine.
 
-\indent And yet people, both kids and adults, who are HIV pos- itive or who have developed AIDS have been discriminated against.
+> And yet people, both kids and adults, who are HIV pos- itive or who have developed AIDS have been discriminated against.
+
+
 
 Cluster 3:
 
-\indent If you are male, your penis and testicles are two of your sex organs.
+> If you are male, your penis and testicles are two of your sex organs.
 
-\indent Identical twins begin if a single egg splits into two after it has been fertilized.
+> Identical twins begin if a single egg splits into two after it has been fertilized.
 
-\indent In most births, the baby’s head pushes out of the vagina ﬁrst.
+> In most births, the baby’s head pushes out of the vagina ﬁrst.
+
+
 
 It was decided that three clusters formed the most clear thematic division, however further insight could potentially be gained by grouping the data into some other number of clusters. Additionally, the above themes were identified by manually inspecting the sentences in each cluster, but other terms could be utilized. An alternative method for labeling clusters is to feed a sample of sentences from each group to a generative model and prompting it to identify themes.
 
-The embeddings were then compressed into two dimensions using Uniform Manifold Approximation and Projection (UMAP), a dimension reduction technique, with cosine similarity (angular distance between vectors) as the chosen distance metric. This was done in order to visualize the embeddings in the form of scatterplots (@fig-embeddings).
+The embeddings were then compressed into two dimensions using Uniform Manifold Approximation and Projection (UMAP), a dimension reduction technique, with cosine similarity (angular distance between vectors) as the chosen distance metric. This was done in order to visualize the embeddings in the form of scatterplots in @fig-embeddings.
 
 ```{r}
 #| echo: false
@@ -232,9 +245,10 @@ plot_data <- data.frame(
 
 ```{r}
 #| echo: false
-#| layout-ncol: 2
 #| label: fig-embeddings
-#| fig-cap: "Figure 1: Clustered Sentences Embeddings"
+#| fig-cap: "Clustered Sentences Embeddings"
+#| fig-subcap: ""
+#| layout-ncol: 2
 
 p <- ggplot(plot_data, aes(UMAP1, UMAP2, colour = clusters, text = text)) +
   labs(title = "GPT 4o Mini",
@@ -293,6 +307,7 @@ ggplot(plot_data, aes(UMAP1, UMAP2, colour = clusters, text = text)) +
     "2" = "Healthcare, STIs, Arousal, Puberty, and External Anatomy",
     "3" = "Internal Biology and Anatomy")
   )
+
 
 ggplot(plot_data, aes(UMAP1, UMAP2, colour = clusters, text = text)) +
   labs(title = "GPT 5.4 Mini",
@@ -418,12 +433,14 @@ ggplot(plot_data, aes(UMAP1, UMAP2, colour = clusters, text = text)) +
 as_ggplot(get_legend(p))
 ```
 
+
+
 ```{r}
 #| echo: false
 #| output: true
 #| warning: false
 #| message: false
-#| label: fig-bycluster
+#| tab: fig-bycluster
 
 # turn response data into ones and zeros
 n = nrow(raw)
@@ -520,7 +537,7 @@ Then the F score is the harmonic mean of these two metrics: $$F(S_k) = \frac{2Pr
 #| output: true
 #| warning: false
 #| message: false
-#| label: fig-metrics
+#| tab: fig-metrics
 
 # metrics
 prob <- function(data_item, trial_num) {
@@ -637,9 +654,9 @@ table_data <- data.frame(topics = c("Avoiding Pregnancy", "STIs", "Arousal", "Pu
 table_data[,2:6] <- round(table_data[,2:6], 4)*100
 
 colnames(table_data) <- c("Topics",
-  "GPT 4o Mini (%)", "GPT 5.4 Mini (%)", "Deepseek V4 Flash (%)", "Deepseek V4 Pro (%)", "Claude Haiku 4.5 (%)"
+  "GPT 4o (%)", "GPT 5.4 (%)", "Deepseek Flash (%)", "Deepseek Pro (%)", "Claude Haiku (%)"
 )
-kable(table_data, caption = "Percentage of Sentences Classified as Inappropriate by Topic", booktabs = T, escape = FALSE) |> kable_classic(full_width = F, html_font = "Cambria") |> kable_styling(bootstrap_options = "striped")
+kable(table_data, caption = "Percentage of Sentences Classified as Inappropriate by Topic", booktabs = T, escape = FALSE) |> kable_classic(full_width = F, html_font = "Cambria") |> kable_styling(bootstrap_options = "striped", font_size = 8)
 ```
 
 Due to a lack of ground truth data, model performances were measured using recall and precision metrics that compare responses to the overall model consensus. According to these statistics, GPT 5.4 had the highest mean recall (79.0%) and lowest mean precision (35.4%), meaning it correctly classified the most inappropriate sentences, but incorrectly classified the most appropriate ones. Claude Haiku demonstrated the opposite behaviour, with the lowest mean recall (21.3%) and highest mean precision (57.3%). This model was much more conservative when classifying text as inappropriate, only putting three sentences in this category out of 100 prompts and 30 trials for each prompt. It should be noted that Claude Haiku had no variance in its responses, and always responded with Yes or No for each unique prompt. GPT 4o Mini had the highest mean F score (49.3%), demonstrating the most balanced behaviour overall, while Claude Haiku had the lowest (31.1%).
