@@ -1,2 +1,3 @@
-# sex_ed_classification_paper
-Repository for Sex Ed Classification paper
+# Classifying Sexual Education Material with Generative AI
+
+While sexual education is a critical part of child development, there is debate around how and when it should be taught. The internet can be a place for children to consume valuable sexual education content, but differentiating between harmful and educational media is a complicated task. Social media companies use large language models as tools to flag content that is inappropriate for younger audiences. Using zero-shot learning, this report examines how generative AI classifies the age appropriateness of sexual education material in order to understand which topics tend to be considered inappropriate. Model performance is then evaluated based on how it compares to the general model consensus.
